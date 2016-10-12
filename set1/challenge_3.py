@@ -1,5 +1,11 @@
+"""
+Cryptopals challenge 3 solution.
+By Sandra Escandor-O'Keefe, 2016
+"""
+
 #!/usr/env python27
 from bitstring import BitArray, Bits
+from operator import itemgetter
 
 class CharScore():
 
@@ -7,6 +13,7 @@ class CharScore():
         self.hex_stream = '' 
         self.score = 0
         self.key_used = 0 
+        self.score_board = dict()
 
     def get_key(self):
         return self.key_used
@@ -17,6 +24,10 @@ class CharScore():
     def do_score(self, hex_stream, key_used):
         ascii_str = hex_stream.decode('hex')
 
+        """
+        Letters are based off of frequency chart from:
+        https://www.math.cornell.edu/~mec/2003-2004/cryptography/subs/frequencies.html
+        """
         num_e = ascii_str.count('e')
         num_E = ascii_str.count('E')
 
@@ -31,16 +42,20 @@ class CharScore():
 
         num_spaces = ascii_str.count(' ')
 
+        
         curr_score = num_e + num_E + num_t + num_T + num_a + num_A \
                      + num_o + num_O + num_spaces
-
-        curr_score = curr_score 
 
         if curr_score > self.score:
             self.key_used = key_used
             self.score = curr_score
             self.hex_stream = hex_stream
 
+        self.score_board[self.hex_stream] = curr_score
+
+    def get_top_ten(self):
+        for k,v in sorted(self.score_board.items(), reverse=True, key=itemgetter(1))[0:10]:
+            print "stream:", k.decode('hex'), " score:", v
 
 
 class Decrypter():
@@ -106,11 +121,12 @@ def main():
         dcrypt.set_decrypt_key(i)
         scorer.do_score(str(dcrypt.decrypt().hex), i)
 
-    print str(scorer.get_key())
-    #print scorer.get_hex_stream().decode('hex')
+    print "Highest scoring deciphered stream:"
+    print "Key used:", str(hex(scorer.get_key()))
+    print "Stream deciphered to:", scorer.get_hex_stream().decode('hex')
 
-    dcrypt.set_decrypt_key(82)
-    print (dcrypt.decrypt().hex).decode('hex')
+    print "---- TOP TEN scoring streams ----"
+    scorer.get_top_ten()
 
 
 if __name__ == '__main__':
