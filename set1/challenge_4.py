@@ -1,5 +1,10 @@
 #!/usr/bin/env python27
 
+"""
+Cryptopals Set 1 - Challenge 4 solution.
+By Sandra Escandor-O'Keefe, 2016.
+"""
+
 import wget
 from challenge_3 import Decrypter, CharScore
 
