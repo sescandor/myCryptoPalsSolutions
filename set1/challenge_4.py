@@ -56,6 +56,7 @@ def main():
         scorer.do_score(deciphered_text, cipher_key, False) 
    
     print "Likely:", scorer.get_hex_stream()
+    print "Encrypted with key:", scorer.get_key()
 
 if __name__ == '__main__':
     main()
