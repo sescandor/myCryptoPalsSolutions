@@ -15,14 +15,20 @@ class CharScore():
         self.key_used = 0 
         self.score_board = dict()
 
+    def clear(self):
+        self.__init__()
+
     def get_key(self):
         return self.key_used
 
     def get_hex_stream(self):
         return self.hex_stream
 
-    def do_score(self, hex_stream, key_used):
-        ascii_str = hex_stream.decode('hex')
+    def do_score(self, data_stream, key_used, is_hex=True):
+        if is_hex:
+            ascii_str = data_stream.decode('hex')
+        else:
+            ascii_str = data_stream
 
         """
         Letters are based off of frequency chart from:
@@ -49,7 +55,7 @@ class CharScore():
         if curr_score > self.score:
             self.key_used = key_used
             self.score = curr_score
-            self.hex_stream = hex_stream
+            self.hex_stream = data_stream
 
         self.score_board[self.hex_stream] = curr_score
 
@@ -68,10 +74,11 @@ class Decrypter():
         self.output = BitArray(hex='0x00')
 
     def _ensure_padding(self, cipher_stream):
-        stream = cipher_stream[2:]
-        stream_len = len(stream)
-        if stream_len % 2:
+        stream = BitArray(hex=cipher_stream)
+        stream_len = stream.len 
+        while stream_len % 8:
             stream = '0' + stream
+            stream_len = len(stream)
 
         return stream
 
@@ -84,8 +91,7 @@ class Decrypter():
 
     def set_cipher_stream(self, cipher_stream):
         if cipher_stream.startswith('0x'):
-            cipher_stream = self._ensure_padding(cipher_stream)
-            self.cipher_stream = BitArray(hex=cipher_stream)
+            self.cipher_stream = self._ensure_padding(cipher_stream)
 
     def decrypt(self):
         self.output = BitArray(hex='0x00')
