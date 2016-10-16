@@ -103,8 +103,39 @@ class Decrypter():
 
         return self.output
 
+class Decrypt_Key_Solver():
+
+    def __init__(self, cipher_hex_stream):
+        self.cipher_hex_stream = cipher_hex_stream
+        self.decrypter = Decrypter()
+        self.scorer = CharScore()
+        self.key_used = ""
+        self.deciphered_stream = ""
+
+    def get_key_used(self):
+        return self.key_used
+
+    def get_deciphered_stream(self):
+        return self.deciphered_stream
+
+    def solve(self):
+        self.decrypter.set_cipher_stream(self.cipher_hex_stream)
+        for i in range(-128, 127):
+            self.decrypter.set_decrypt_key(i)
+            self.scorer.do_score(str(self.decrypter.decrypt().hex), i)
+
+        self.key_used = self.scorer.get_key()
+        self.deciphered_stream = self.scorer.get_hex_stream().decode('hex')
 
 def main():
+    
+    solver = Decrypt_Key_Solver('0x1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736')
+    solver.solve()
+
+    print "Key used:", solver.get_key_used()
+    print "Deciphered stream as:", solver.get_deciphered_stream()
+
+def main_orig():
     """
     Algorithm:
     -initiate single-byte XOR to use
