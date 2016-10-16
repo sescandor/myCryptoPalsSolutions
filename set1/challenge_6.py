@@ -110,11 +110,12 @@ class Repeating_XOR_Breaker():
          return candidate_keys
 
 def main():
-    
-    str1 = "this is a test"
-    str2 = "wokka wokka!!!"
-    hc = Hamming_Distance_Calculator(str1, str2)
-    print "Hamming distance between str1 and str2:", hc.get_distance()
+    """
+    1. Get file.
+    2. Convert from base64 to hex string representation.
+    3. Convert hex string representation to BitArray.
+    4. Feed into Repeating_XOR_Breaker
+    """
 
 if __name__ == '__main__':
     main()
