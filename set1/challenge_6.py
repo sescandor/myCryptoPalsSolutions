@@ -99,15 +99,17 @@ class Repeating_XOR_Breaker():
             transposed_streams = {bucket: [] for bucket in
                                   range(candidate_keysize)}
 
-            skip_by_bits = (candidate_keysize-1) * 8
+            skip_by_bits = (candidate_keysize) * 8
+            print "skip_by_bits:", skip_by_bits
             for i in xrange(0, self.cipher_data.len, skip_by_bits):
+                print "processing", self.cipher_data[i:]
                 n = 0
                 for stream in transposed_streams:
                     start = i + n
-                    end = i + n + 4
+                    end = i + n + 8
                     transposed_streams[stream].append(self.cipher_data[start:
                                                                        end])
-                    n = n + 4
+                    n = n + 8
 
             self.key_to_transposed_streams[candidate_keysize] = transposed_streams
 
