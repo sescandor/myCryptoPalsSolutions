@@ -53,7 +53,8 @@ class Keysize_Estimator():
         self.key_to_edit_dist = dict()
 
     def _get_smallest_keys_to_edit_dist():
-        ordered_by_edit_dist = collections.OrderedDict(sorted(self.key_to_normalized_dist.values(), reverse=True)
+        ordered_by_edit_dist = collections.OrderedDict(sorted(self.key_to_normalized_dist.values(), reverse=True))
+
         return ordered_by_edit_dist[0:3] 
             
     def get_edit_distances():
@@ -65,7 +66,8 @@ class Keysize_Estimator():
             normalized = hamming_dist / keysize
             self.key_to_edit_dist[keysize] = normalized
 
-         return self._get_smallest_keys_to_edit_dist()
+        return self._get_smallest_keys_to_edit_dist()
+
 
 class Repeating_XOR_Breaker():
     
@@ -73,10 +75,19 @@ class Repeating_XOR_Breaker():
         self.cipher_data = cipher_data
         self.keysize_estimator = Keysize_Estimator(self.cipher_data)
         self.key_to_transposed_streams = dict()
+        self.candidate_keysizes = list()
+
+    def _get_candidate_keysizes(self):
+        self.candidate_keysizes = self.keysize_estimator.get_edit_distances()
+
+    def _get_keysize_to_transposed_streams(self):
+        return self.key_to_transposed_streams
+
+    def _set_candidate_keysizes(self, keysizes_list):
+        self.candidate_keysizes = keysizes_list
 
     def _transpose(self):
-        candidate_keysizes = self.keysize_estimator.get_edit_distances()
-
+        
         """
         Each row in transposed_streams corresponds to the nth byte
         of a block. For example, transposed_streams[0] corresponds to
@@ -84,30 +95,35 @@ class Repeating_XOR_Breaker():
         corresponds to the 2nd byte of every keysize block; and so on. 
         """
         
-        for candidate_keysize in candidate_keysizes:
-            num_blocks = self.cipher_data.len/candidate_keysize
-            transposed_streams = list(num_blocks)
+        for candidate_keysize in self.candidate_keysizes:
+            transposed_streams = {bucket: [] for bucket in
+                                  range(candidate_keysize)}
 
-            for bucket in range(0, candidate_keysize):
-                skip_by_bits = candidate_keysize * 8
-                bucket_in_bits = bucket * 8
-                for i in xrange(bucket_in_bits, self.cipher_data.len, skip_by_bits): 
-                    transposed_streams[bucket].append(self.cipher_data[i])
+            skip_by_bits = (candidate_keysize-1) * 8
+            for i in xrange(0, self.cipher_data.len, skip_by_bits):
+                n = 0
+                for stream in transposed_streams:
+                    start = i + n
+                    end = i + n + 4
+                    transposed_streams[stream].append(self.cipher_data[start:
+                                                                       end])
+                    n = n + 4
 
             self.key_to_transposed_streams[candidate_keysize] = transposed_streams
 
-     def solve(self):
-         candidate_keys = list()
-         self._transpose()
-         for candidate_keysize, transposed_stream in self.key_to_transposed_streams.iteritems():
-             key = list()
-             for bucket in transposed_stream:
-                 solver = Decrypt_Key_Solver(bucket)
-                 key.append(solver.get_key_used())
+    def solve(self):
+        candidate_keys = list()
+        self._get_candidate_keysizes()
+        self._transpose()
+        for candidate_keysize, transposed_stream in self.key_to_transposed_streams.iteritems():
+            key = list()
+            for bucket in transposed_stream:
+                solver = Decrypt_Key_Solver(bucket)
+                key.append(solver.get_key_used())
 
-             candidate_keys.append(key) 
+            candidate_keys.append(key)
 
-         return candidate_keys
+        return candidate_keys
 
 def main():
     """
@@ -116,6 +132,14 @@ def main():
     3. Convert hex string representation to BitArray.
     4. Feed into Repeating_XOR_Breaker
     """
+    test_breaker = Repeating_XOR_Breaker(BitArray(hex="0x12341234"))
+    test_list = list()
+    test_list.append(2)
+    test_breaker._set_candidate_keysizes(test_list)
+    test_breaker._transpose()
+    
+    streams = test_breaker._get_keysize_to_transposed_streams()
+    print streams[2]  
 
 if __name__ == '__main__':
     main()
