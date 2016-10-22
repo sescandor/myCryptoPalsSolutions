@@ -2,6 +2,17 @@ import binascii
 import base64
 import sys
 
+class Base64_To_Hex():
+    def __init__(self, base64_to_convert):
+        self.to_convert = base64_to_convert
+
+    def convert(self):
+        to_bin = binascii.a2b_base64(self.to_convert)
+
+        to_hex = (binascii.b2a_hex(to_bin)).rstrip('\n')
+
+        return to_hex
+
 class Hex_To_Base64():
 
     def __init__(self, hex_to_convert):
@@ -24,3 +35,7 @@ if __name__ == '__main__':
     if toConvert_b64 == string_should_be:
         print "Successfully converted to base64!"
 
+    toConvert_hex = Base64_To_Hex(toConvert_b64).convert()
+
+    if toConvert_hex == string_to_convert:
+        print "Successfully converted back to hex!"
