@@ -149,6 +149,15 @@ class ExtendedKeyDecrypter(Decrypter):
         self.XOR_to_use = BitArray(hex=key)
         self.key_len = self.XOR_to_use.len
 
+    def _ensure_padding(self, cipher_stream):
+        stream = BitArray(hex=cipher_stream)
+        stream_len = stream.len
+        while stream_len % self.key_len:
+            stream.insert('0b0', 0)
+            stream_len = stream_len + 1
+
+        return stream
+
     def decrypt(self):
         result = BitArray(hex='0x00')
         skip_by = self.key_len
@@ -199,6 +208,7 @@ def main():
         print "whole_key:", whole_key
         decrypter = ExtendedKeyDecrypter()
         decrypter.set_decrypt_key(whole_key.hex)
+        decrypter.set_cipher_stream('0x' + data_to_break.hex)
         print decrypter.decrypt()
 
 
