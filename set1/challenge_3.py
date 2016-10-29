@@ -77,8 +77,8 @@ class Decrypter():
         stream = BitArray(hex=cipher_stream)
         stream_len = stream.len
         while stream_len % 8:
-            stream.insert('0x0', 0)
-            stream_len = stream_len + 4
+            stream.insert('0b0', 0)
+            stream_len = stream_len + 1
 
         return stream
 
