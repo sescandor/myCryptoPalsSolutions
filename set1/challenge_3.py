@@ -75,10 +75,10 @@ class Decrypter():
 
     def _ensure_padding(self, cipher_stream):
         stream = BitArray(hex=cipher_stream)
-        stream_len = stream.len 
+        stream_len = stream.len
         while stream_len % 8:
-            stream = '0' + stream
-            stream_len = len(stream)
+            stream.insert('0x0', 0)
+            stream_len = stream_len + 4
 
         return stream
 
@@ -180,4 +180,4 @@ def main_orig():
 
 
 if __name__ == '__main__':
-    test_main()
+    main_orig()
