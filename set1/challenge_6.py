@@ -62,7 +62,7 @@ class Keysize_Estimator():
         for k,v in key_list:
             keys_with_smallest_edit_dist.append(k) 
 
-        return keys_with_smallest_edit_dist[0:4] 
+        return keys_with_smallest_edit_dist[0:3] 
             
     def get_edit_distances(self):
         for keysize in self.size_range:
@@ -153,7 +153,7 @@ class ExtendedKeyDecrypter(Decrypter):
         stream = BitArray(hex=cipher_stream)
         stream_len = stream.len
         while stream_len % self.key_len:
-            stream.insert('0b0', 0)
+            stream.insert('0b0', stream.len)
             stream_len = stream_len + 1
 
         return stream
@@ -166,7 +166,7 @@ class ExtendedKeyDecrypter(Decrypter):
             result.append(xor_res)
             skip_by += self.key_len
 
-        return result
+        return result 
 
 
 def test_transpose():
@@ -201,15 +201,15 @@ def main():
     print "Candidate Keys:", candidate_keys
 
     for key_set in candidate_keys:
-        whole_key = BitArray(hex='0x00')
+        whole_key = BitArray()
         for key in key_set:
-            whole_key.append(BitArray(int=key, length=8)) 
+            whole_key.append(BitArray(int=key, length=8))
 
         print "whole_key:", whole_key
         decrypter = ExtendedKeyDecrypter()
         decrypter.set_decrypt_key(whole_key.hex)
         decrypter.set_cipher_stream('0x' + data_to_break.hex)
-        print decrypter.decrypt()
+        print decrypter.decrypt().hex.decode('hex')
 
 
 if __name__ == '__main__':
