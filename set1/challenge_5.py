@@ -6,6 +6,8 @@ By Sandra Escandor-O'Keefe, 2016
 """
 
 from bitstring import BitArray
+from challenge_1 import Hex_To_Base64
+
 
 class Encryptor():
 
@@ -50,7 +52,13 @@ def main():
     ciphertext = crypt.encrypt("I go crazy when I hear a cymbal")
     print ciphertext
 
+def test_challenge6():
+    crypt = Encryptor("ICE")
+    ciphertext = crypt.encrypt("Burning 'em, if you ain't quick and nimble")    
+    output = Hex_To_Base64(ciphertext).convert()
+    print output
+
 if __name__ == '__main__':
-    main()
+    test_challenge6()
 
         

@@ -211,6 +211,29 @@ def main():
         decrypter.set_cipher_stream('0x' + data_to_break.hex)
         print decrypter.decrypt().hex.decode('hex')
 
+def test_challenge6():
+    data = "AAs2NycqKy5jYiwuaWkqI2k6KjxjJCAtYj1jNDwqJiJjJCcnZScqKCsvIA=="
+    converted = Base64_To_Hex(data).convert()
+    data_to_break = BitArray(hex=converted)
+    breaker = Repeating_XOR_Breaker(data_to_break)
+
+    candidate_keys = breaker.solve()
+
+    print "Candidate Keys:", candidate_keys
+
+    for key_set in candidate_keys:
+        whole_key = BitArray()
+        for key in key_set:
+            whole_key.append(BitArray(int=key, length=8))
+
+        print "whole_key:", whole_key
+        decrypter = ExtendedKeyDecrypter()
+        decrypter.set_decrypt_key(whole_key.hex)
+        decrypter.set_cipher_stream('0x' + data_to_break.hex)
+        print decrypter.decrypt().hex.decode('hex')
+
+
 
 if __name__ == '__main__':
-    main()
+    test_challenge6()
+    #main()
